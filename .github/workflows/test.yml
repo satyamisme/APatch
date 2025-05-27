@@ -3,6 +3,7 @@ name: Build Manager
 on:
   push:
     branches: [ "main" ]
+    tags: [ "*" ]
     paths:
       - '.github/workflows/build.yml'
       - 'app/**'
@@ -17,7 +18,7 @@ on:
       - 'apd/**'
       - 'build.gradle.kts'
       - 'gradle/libs.versions.toml'
-  workflow_dispatch: # Enables manual "run" option
+  workflow_dispatch:
 
 jobs:
   build-manager:
@@ -77,8 +78,37 @@ jobs:
           sed -i 's/org.gradle.configuration-cache=true//g' gradle.properties
           ./gradlew clean assembleRelease
 
+      - name: Debug APK Output
+        run: |
+          echo "Listing APK output directory:"
+          ls -R app/build/outputs/apk/
+
+      - name: Rename APK with Date
+        id: rename_apk
+        run: |
+          DATE=$(date +%Y%m%d)
+          VERSION=${{ steps.parse_version.outputs.VERSION }}
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          ORIGINAL_APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          NEW_APK_NAME="APatch_${VERSION}_${COMMIT_SHA}_${DATE}-release.apk"
+          mv "$ORIGINAL_APK" "app/build/outputs/apk/release/$NEW_APK_NAME"
+          echo "Renamed APK to: $NEW_APK_NAME"
+          echo "APK_NAME=$NEW_APK_NAME" >> $GITHUB_OUTPUT
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: APatch
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/release/${{ steps.rename_apk.outputs.APK_NAME }}
+
+      - name: Create Release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
+          name: Release ${{ steps.parse_version.outputs.VERSION }}
+          artifacts: app/build/outputs/apk/release/${{ steps.rename_apk.outputs.APK_NAME }}
+          generateReleaseNotes: true
+          makeLatest: true
+          replacesArtifacts: true
