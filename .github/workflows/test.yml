@@ -90,7 +90,7 @@ jobs:
           VERSION=${{ steps.parse_version.outputs.VERSION }}
           COMMIT_SHA=$(git rev-parse --short HEAD)
           ORIGINAL_APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
-          NEW_APK_NAME="APatch_${VERSION}_${COMMIT_SHA}_${DATE}-release.apk"
+          NEW_APK_NAME="APatch_self_build_${VERSION}_${COMMIT_SHA}_${DATE}-release.apk"
           mv "$ORIGINAL_APK" "app/build/outputs/apk/release/$NEW_APK_NAME"
           echo "Renamed APK to: $NEW_APK_NAME"
           echo "APK_NAME=$NEW_APK_NAME" >> $GITHUB_OUTPUT
