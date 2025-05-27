@@ -29,14 +29,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate version
-        id: parse_version
-        run: |
-          COMMIT_NUM=$(git rev-list --count HEAD)
-          VERSION=$(echo "$COMMIT_NUM + 200 + 10000" | bc)
-          echo "Generated Version: $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -85,26 +77,29 @@ jobs:
           echo "APK files in release directory:"
           ls -l app/build/outputs/apk/release/ || echo "No APKs found"
 
-      - name: Extract Version Code
-        id: extract_version_code
+      - name: Extract Version Info
+        id: extract_version_info
         run: |
-          VERSION_CODE=$(grep -E 'versionCode\s*=\s*[0-9]+' app/build.gradle.kts | head -n 1 | awk '{print $3}' || echo "unknown")
+          VERSION_NAME=$(./gradlew :app:printVersionName -q | grep -v "Task" | head -n 1 || echo "11070")
+          VERSION_CODE=$(./gradlew :app:printVersionCode -q | grep -v "Task" | head -n 1 || echo "624")
+          echo "Version Name: $VERSION_NAME"
           echo "Version Code: $VERSION_CODE"
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_OUTPUT
 
       - name: Rename APK with Date
         id: rename_apk
         run: |
           DATE=$(date +%Y%m%d)
-          VERSION=${{ steps.parse_version.outputs.VERSION }}
-          VERSION_CODE=${{ steps.extract_version_code.outputs.VERSION_CODE }}
+          VERSION_NAME=${{ steps.extract_version_info.outputs.VERSION_NAME }}
+          VERSION_CODE=${{ steps.extract_version_info.outputs.VERSION_CODE }}
           COMMIT_SHA=$(git rev-parse --short HEAD)
           ORIGINAL_APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1 || echo "")
           if [ -z "$ORIGINAL_APK" ]; then
             echo "Error: No APK found in app/build/outputs/apk/release/"
             exit 1
           fi
-          NEW_APK_NAME="APatch_${VERSION}-${VERSION_CODE}_${COMMIT_SHA}_${DATE}-release.apk"
+          NEW_APK_NAME="APatch_${VERSION_NAME}-${VERSION_CODE}_${COMMIT_SHA}_${DATE}-release.apk"
           mv "$ORIGINAL_APK" "app/build/outputs/apk/release/$NEW_APK_NAME"
           echo "Renamed APK to: $NEW_APK_NAME"
           echo "APK_NAME=$NEW_APK_NAME" >> $GITHUB_OUTPUT
@@ -119,8 +114,8 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ github.token }}
-          tag: "build-${{ github.run_id }}-${{ steps.rename_apk.outputs.APK_NAME }}"
-          name: Release ${{ steps.parse_version.outputs.VERSION }} (${{ steps.rename_apk.outputs.APK_NAME }})
+          tag: "v${{ steps.extract_version_info.outputs.VERSION_NAME }}-${{ steps.extract_version_info.outputs.VERSION_CODE }}-${{ github.run_id }}"
+          name: Release ${{ steps.extract_version_info.outputs.VERSION_NAME }}-${{ steps.extract_version_info.outputs.VERSION_CODE }} (${{ steps.rename_apk.outputs.APK_NAME }})
           artifacts: app/build/outputs/apk/release/${{ steps.rename_apk.outputs.APK_NAME }}
           generateReleaseNotes: true
           makeLatest: true
