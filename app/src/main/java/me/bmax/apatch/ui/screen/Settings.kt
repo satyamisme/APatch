@@ -32,9 +32,11 @@ import androidx.compose.material.icons.filled.Commit
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Engineering
+import androidx.compose.material.icons.filled.FilePresent
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.RemoveFromQueue
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Translate
@@ -76,6 +78,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.content.FileProvider
+import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -92,11 +95,15 @@ import me.bmax.apatch.ui.component.rememberLoadingDialog
 import me.bmax.apatch.ui.theme.refreshTheme
 import me.bmax.apatch.util.APatchKeyHelper
 import me.bmax.apatch.util.getBugreportFile
-import me.bmax.apatch.util.hideapk.HideAPK
+import me.bmax.apatch.util.isForceUsingOverlayFS
 import me.bmax.apatch.util.isGlobalNamespaceEnabled
+import me.bmax.apatch.util.isLiteModeEnabled
 import me.bmax.apatch.util.outputStream
+import me.bmax.apatch.util.overlayFsAvailable
 import me.bmax.apatch.util.rootShellForResult
+import me.bmax.apatch.util.setForceUsingOverlayFS
 import me.bmax.apatch.util.setGlobalNamespaceEnabled
+import me.bmax.apatch.util.setLiteMode
 import me.bmax.apatch.util.ui.APDialogBlurBehindUtils
 import me.bmax.apatch.util.ui.LocalSnackbarHost
 import me.bmax.apatch.util.ui.NavigationBarsSpacer
@@ -112,15 +119,25 @@ fun SettingScreen() {
     val kPatchReady = state != APApplication.State.UNKNOWN_STATE
     val aPatchReady =
         (state == APApplication.State.ANDROIDPATCH_INSTALLING || state == APApplication.State.ANDROIDPATCH_INSTALLED || state == APApplication.State.ANDROIDPATCH_NEED_UPDATE)
-    //val bIsManagerHide = AppUtils.getPackageName() != APPLICATION_ID
     var isGlobalNamespaceEnabled by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var isLiteModeEnabled by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var forceUsingOverlayFS by rememberSaveable {
         mutableStateOf(false)
     }
     var bSkipStoreSuperKey by rememberSaveable {
         mutableStateOf(APatchKeyHelper.shouldSkipStoreSuperKey())
     }
+    val isOverlayFSAvailable by rememberSaveable {
+        mutableStateOf(overlayFsAvailable())
+    }
     if (kPatchReady && aPatchReady) {
         isGlobalNamespaceEnabled = isGlobalNamespaceEnabled()
+        isLiteModeEnabled = isLiteModeEnabled()
+        forceUsingOverlayFS = isForceUsingOverlayFS()
     }
 
     val snackBarHost = LocalSnackbarHost.current
@@ -144,11 +161,6 @@ fun SettingScreen() {
 
         val showLanguageDialog = rememberSaveable { mutableStateOf(false) }
         LanguageDialog(showLanguageDialog)
-
-        /*val showRandomizePkgNameDialog = rememberSaveable { mutableStateOf(false) }
-        if (showRandomizePkgNameDialog.value) {
-            RandomizePkgNameDialog(showDialog = showRandomizePkgNameDialog)
-        }*/
 
         val showResetSuPathDialog = remember { mutableStateOf(false) }
         if (showResetSuPathDialog.value) {
@@ -245,6 +257,32 @@ fun SettingScreen() {
                     })
             }
 
+            // Lite Mode
+            if (kPatchReady && aPatchReady) {
+                SwitchItem(
+                    icon = Icons.Filled.RemoveFromQueue,
+                    title = stringResource(id = R.string.settings_lite_mode),
+                    summary = stringResource(id = R.string.settings_lite_mode_mode_summary),
+                    checked = isLiteModeEnabled,
+                    onCheckedChange = {
+                        setLiteMode(it)
+                        isLiteModeEnabled = it
+                    })
+            }
+
+            // Force OverlayFS
+            if (kPatchReady && aPatchReady && isOverlayFSAvailable) {
+                SwitchItem(
+                    icon = Icons.Filled.FilePresent,
+                    title = stringResource(id = R.string.settings_force_overlayfs_mode),
+                    summary = stringResource(id = R.string.settings_force_overlayfs_mode_summary),
+                    checked = forceUsingOverlayFS,
+                    onCheckedChange = {
+                        setForceUsingOverlayFS(it)
+                        forceUsingOverlayFS = it
+                    })
+            }
+
             // WebView Debug
             if (aPatchReady) {
                 var enableWebDebugging by rememberSaveable {
@@ -258,8 +296,9 @@ fun SettingScreen() {
                     summary = stringResource(id = R.string.enable_web_debugging_summary),
                     checked = enableWebDebugging
                 ) {
-                    APApplication.sharedPreferences.edit().putBoolean("enable_web_debugging", it)
-                        .apply()
+                    APApplication.sharedPreferences.edit {
+                        putBoolean("enable_web_debugging", it)
+                    }
                     enableWebDebugging = it
                 }
             }
@@ -277,7 +316,7 @@ fun SettingScreen() {
                 summary = stringResource(id = R.string.settings_check_update_summary),
                 checked = checkUpdate
             ) {
-                prefs.edit().putBoolean("check_update", it).apply()
+                prefs.edit { putBoolean("check_update", it) }
                 checkUpdate = it
             }
 
@@ -293,7 +332,7 @@ fun SettingScreen() {
                 summary = stringResource(id = R.string.settings_night_mode_follow_sys_summary),
                 checked = nightFollowSystem
             ) {
-                prefs.edit().putBoolean("night_mode_follow_sys", it).apply()
+                prefs.edit { putBoolean("night_mode_follow_sys", it) }
                 nightFollowSystem = it
                 refreshTheme.value = true
             }
@@ -310,7 +349,7 @@ fun SettingScreen() {
                     title = stringResource(id = R.string.settings_night_theme_enabled),
                     checked = nightThemeEnabled
                 ) {
-                    prefs.edit().putBoolean("night_mode_enabled", it).apply()
+                    prefs.edit { putBoolean("night_mode_enabled", it) }
                     nightThemeEnabled = it
                     refreshTheme.value = true
                 }
@@ -330,7 +369,7 @@ fun SettingScreen() {
                     summary = stringResource(id = R.string.settings_use_system_color_theme_summary),
                     checked = useSystemDynamicColor
                 ) {
-                    prefs.edit().putBoolean("use_system_color_theme", it).apply()
+                    prefs.edit { putBoolean("use_system_color_theme", it) }
                     useSystemDynamicColor = it
                     refreshTheme.value = true
                 }
@@ -364,32 +403,6 @@ fun SettingScreen() {
                     )
                 }, leadingContent = { Icon(Icons.Filled.FormatColorFill, null) })
             }
-
-            /*
-            // hide manager
-            if (kPatchReady && !bIsManagerHide) {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Masks,
-                            stringResource(id = R.string.hide_apatch_manager)
-                        )
-                    },
-                    supportingContent = {
-                        Text(text = stringResource(id = R.string.hide_apatch_manager_summary))
-                    },
-                    headlineContent = {
-                        Text(
-                            stringResource(id = R.string.hide_apatch_manager),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    },
-                    modifier = Modifier.clickable {
-                        showRandomizePkgNameDialog.value = true
-                    }
-                )
-            }*/
 
             // su path
             if (kPatchReady) {
@@ -564,7 +577,7 @@ fun ThemeChooseDialog(showDialog: MutableState<Boolean>) {
                         headlineContent = { Text(text = stringResource(it.nameId)) },
                         modifier = Modifier.clickable {
                             showDialog.value = false
-                            prefs.edit().putString("custom_color", it.name).apply()
+                            prefs.edit { putString("custom_color", it.name) }
                             refreshTheme.value = true
                         })
                 }
@@ -579,7 +592,7 @@ fun ThemeChooseDialog(showDialog: MutableState<Boolean>) {
 }
 
 private data class APColor(
-    val name: String, @StringRes val nameId: Int
+    val name: String, @param:StringRes val nameId: Int
 )
 
 private fun colorsList(): List<APColor> {
@@ -678,94 +691,6 @@ fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
                             Toast.LENGTH_SHORT
                         ).show()
                         rootShellForResult("echo $suPath > ${APApplication.SU_PATH_FILE}")
-                    }) {
-                        Text(stringResource(id = android.R.string.ok))
-                    }
-                }
-            }
-            val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
-            APDialogBlurBehindUtils.setupWindowBlurListener(dialogWindowProvider.window)
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RandomizePkgNameDialog(showDialog: MutableState<Boolean>) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    var newPackageName by remember { mutableStateOf("") }
-    var enable by remember { mutableStateOf(false) }
-    BasicAlertDialog(
-        onDismissRequest = { showDialog.value = false }, properties = DialogProperties(
-            decorFitsSystemWindows = true,
-            usePlatformDefaultWidth = false,
-
-            )
-    ) {
-        Surface(
-            modifier = Modifier
-                .width(310.dp)
-                .wrapContentHeight(),
-            shape = RoundedCornerShape(30.dp),
-            tonalElevation = AlertDialogDefaults.TonalElevation,
-            color = AlertDialogDefaults.containerColor,
-        ) {
-            Column(modifier = Modifier.padding(PaddingValues(all = 24.dp))) {
-
-                Box(
-                    Modifier
-                        .padding(PaddingValues(bottom = 16.dp))
-                        .align(Alignment.Start)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.hide_apatch_manager),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-
-                Box(
-                    Modifier
-                        .weight(weight = 1f, fill = false)
-                        .padding(PaddingValues(bottom = 12.dp))
-                        .align(Alignment.Start)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.hide_apatch_dialog_summary),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                Box(
-                    Modifier
-                        .weight(weight = 1f, fill = false)
-                        .padding(PaddingValues(bottom = 12.dp))
-                        .align(Alignment.Start)
-                ) {
-                    OutlinedTextField(
-                        value = newPackageName,
-                        onValueChange = {
-                            newPackageName = it
-                            enable = newPackageName.isNotEmpty()
-                        },
-                        label = { Text(stringResource(id = R.string.hide_apatch_dialog_new_manager_name)) },
-                        visualTransformation = VisualTransformation.None,
-                    )
-                }
-
-                // Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = { showDialog.value = false }) {
-                        Text(stringResource(id = android.R.string.cancel))
-                    }
-
-                    Button(onClick = {
-                        showDialog.value = false
-                        scope.launch { HideAPK.hide(context, newPackageName) }
                     }) {
                         Text(stringResource(id = android.R.string.ok))
                     }

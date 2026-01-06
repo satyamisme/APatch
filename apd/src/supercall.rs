@@ -104,7 +104,7 @@ fn sc_set_ap_mod_exclude(key: &CStr, uid: i64, exclude: i32) -> c_long {
         uid,
         &exclude as *const i32 as *mut c_void,
         0,
-        std::mem::size_of::<i32>() as i32,
+        size_of::<i32>() as i32,
     )
 }
 
@@ -276,7 +276,9 @@ pub fn refresh_ap_package_list(skey: &CStr, mutex: &Arc<Mutex<()>>) {
         }
     }
 
-    synchronize_package_uid();
+    if let Err(e) = synchronize_package_uid() {
+        error!("Failed to synchronize package UIDs: {}", e);
+    }
 
     let package_configs = read_ap_package_config();
     for config in package_configs {

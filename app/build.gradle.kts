@@ -1,8 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.tasks.PackageAndroidArtifact
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.net.URI
 
 plugins {
@@ -12,11 +11,13 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.lsplugin.apksign)
     alias(libs.plugins.lsplugin.resopt)
+    alias(libs.plugins.lsplugin.cmaker)
     id("kotlin-parcelize")
 }
 
 val managerVersionCode: Int by rootProject.extra
 val managerVersionName: String by rootProject.extra
+val branchName: String by rootProject.extra
 val kernelPatchVersion: String by rootProject.extra
 
 apksign {
@@ -68,22 +69,13 @@ android {
 
     defaultConfig {
         buildConfigField("String", "buildKPV", "\"$kernelPatchVersion\"")
+
+        base.archivesName = "APatch_${managerVersionCode}_${managerVersionName}_${branchName}"
     }
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_22.majorVersion)
-        }
-    }
-
-    kotlin {
-        jvmToolchain(JavaVersion.VERSION_22.majorVersion.toInt())
-    }
-
-    composeCompiler {
-        featureFlags = setOf(
-            ComposeFeatureFlag.OptimizeNonSkippingGroups
-        )
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     packaging {
@@ -110,16 +102,24 @@ android {
     sourceSets["main"].jniLibs.srcDir("libs")
 
     applicationVariants.all {
-        outputs.forEach {
-            val output = it as BaseVariantOutputImpl
-            output.outputFileName = "APatch_${managerVersionName}_${managerVersionCode}-$name.apk"
-        }
-
         kotlin.sourceSets {
             getByName(name) {
                 kotlin.srcDir("build/generated/ksp/$name/kotlin")
             }
         }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
     }
 }
 
@@ -231,6 +231,10 @@ tasks.clean {
     dependsOn("apdClean")
 }
 
+ksp {
+    arg("compose-destinations.defaultTransitions", "none")
+}
+
 dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
@@ -274,8 +278,17 @@ dependencies {
 
     implementation(libs.markdown)
 
-    implementation(libs.timber)
     implementation(libs.ini4j)
-    implementation(libs.bcpkix)
+
     compileOnly(libs.cxx)
+}
+
+cmaker {
+    default {
+        arguments += "-DANDROID_STL=none"
+        arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+        abiFilters("arm64-v8a")
+        cppFlags += "-std=c++2b"
+        cFlags += "-std=c2x"
+    }
 }

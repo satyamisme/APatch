@@ -7,27 +7,18 @@ plugins {
     alias(libs.plugins.agp.lib) apply false
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.kotlin.compose.compiler) apply false
-    alias(libs.plugins.lsplugin.cmaker)
 }
 
-cmaker {
-    default {
-        arguments += "-DANDROID_STL=none"
-        arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
-        abiFilters("arm64-v8a")
-    }
-}
-
-project.ext.set("kernelPatchVersion", "0.11.3")
+project.ext.set("kernelPatchVersion", "0.12.6")
 
 val androidMinSdkVersion = 26
-val androidTargetSdkVersion = 35
-val androidCompileSdkVersion = 35
-
-val androidCompileNdkVersion = "28.0.13004108"
+val androidTargetSdkVersion = 36
+val androidCompileSdkVersion = 36
+val androidBuildToolsVersion = "36.1.0"
+val androidCompileNdkVersion = "29.0.14206865"
 val managerVersionCode by extra(getVersionCode())
 val managerVersionName by extra(getVersionName())
-
+val branchName by extra(getBranch())
 fun Project.exec(command: String) = providers.exec {
     commandLine(command.split(" "))
 }.standardOutput.asText.get().trim()
@@ -37,13 +28,17 @@ fun getGitCommitCount(): Int {
 }
 
 fun getGitDescribe(): String {
-    return exec("git describe --tags --always").trim()
+    return exec("git rev-parse --verify --short HEAD").trim()
 }
 
 fun getVersionCode(): Int {
     val commitCount = getGitCommitCount()
     val major = 1
     return major * 10000 + commitCount + 200
+}
+
+fun getBranch(): String {
+    return exec("git rev-parse --abbrev-ref HEAD").trim()
 }
 
 fun getVersionName(): String {
@@ -61,7 +56,7 @@ subprojects {
     plugins.withType(AndroidBasePlugin::class.java) {
         extensions.configure(CommonExtension::class.java) {
             compileSdk = androidCompileSdkVersion
-            buildToolsVersion = "35.0.1"
+            buildToolsVersion = androidBuildToolsVersion
             ndkVersion = androidCompileNdkVersion
 
             defaultConfig {

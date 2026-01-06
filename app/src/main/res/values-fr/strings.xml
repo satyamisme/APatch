@@ -8,8 +8,8 @@
     <string name="reboot_edl">Redémarrer en mode EDL</string>
     <string name="about">À propos</string>
     <string name="home_learn_apatch">En apprendre plus sur AndroidPatch</string>
-    <string name="home">Origine</string>
-    <string name="patch_warnning">L\'installation comporte des risques. Assurez-vous d\'avoir sauvegardé vos données.</string>
+    <string name="home">Accueil</string>
+    <string name="patch_warnning">L\'installation comporte des risques. Veillez à ce que vos données soient sauvegardées.</string>
     <string name="settings">Paramètres</string>
     <string name="reboot_bootloader">Redémarrage en mode bootloader</string>
     <string name="reboot">Redémarrer</string>
@@ -27,10 +27,10 @@
     <string name="home_su_path">Exécutable su</string>
     <string name="home_apatch_version">Version d\'APatch</string>
     <string name="apatch_version_update">Version : %s -&gt; %s</string>
-    <string name="about_source_code"><![CDATA[<p>Voir le code source sur %1$s<p/>Rejoindre notre canal %2$s<p/>Rejoindre notre groupe %2$s]]></string>
+    <string name="about_source_code"><![CDATA[<p>Voir le code source sur %1$s<p/>Rejoindre notre canal %2$s<p/>Rejoindre notre groupe %3$s]]></string>
     <string name="patch_set_superkey">Initialiser la clé</string>
     <string name="send_log">Envoyer le log</string>
-    <string name="home_kernel">Noyau</string>
+    <string name="home_kernel">Version du noyau</string>
     <string name="kpm">KPModule</string>
     <string name="apm_version">Version</string>
     <string name="home_working">Fonctionnel 😋</string>
@@ -69,7 +69,7 @@
     <string name="apm_failed_to_disable">Impossible de désactiver le module \"%s\"</string>
     <string name="apm_uninstall_confirm">Désinstaller le module \"%s\" ?</string>
     <string name="apm_uninstall_failed">Impossible de désinstaller %s</string>
-    <string name="apm_magisk_conflict">Les modules sont indisponibles en raison d\'un conflit avec Magisk.</string>
+    <string name="apm_magisk_conflict">Les modules sont indisponibles en raison d\'un conflit avec Magisk !</string>
     <string name="apm_downloading">Téléchargement du module \"%s\"…</string>
     <string name="apm_new_version_available">Appuyez pour installer la nouvelle version, %s.</string>
     <string name="home_selinux_status_permissive">Permissif</string>
@@ -88,7 +88,7 @@
     <string name="su_pkg_excluded_setting_summary">L\'activation de cette option permettra à APatch de restaurer tous les fichiers modifiés par les modules de cette application.</string>
     <string name="apm_remove">Désinstaller</string>
     <string name="su_pkg_excluded_setting_title">Exclure les modifications</string>
-    <string name="apm_overlay_fs_not_available">Les modules sont indisponibles car OverlayFS est désactivé par le noyau.</string>
+    <string name="apm_overlay_fs_not_available">Les modules sont indisponibles car OverlayFS est désactivé par le noyau !</string>
     <string name="patch">Patcher</string>
     <string name="settings_app_language">Langue</string>
     <string name="system_default">Système par défaut</string>
@@ -98,12 +98,12 @@
     <string name="kpatch_version_update">Version : %s -&gt; %s</string>
     <string name="home_kpatch_info_title">Info</string>
     <string name="home_ap_cando_reboot">Redémarrer</string>
-    <string name="patch_config_title">Patches</string>
+    <string name="patch_config_title">Patchs</string>
     <string name="patch_item_kernel">Noyau</string>
-    <string name="patch_item_set_skey_label">La longueur de la clé doit être d\'au moins 8 caractères et inclure à la fois des numéros et des lettres, mais pas de caractères spéciaux</string>
+    <string name="patch_item_set_skey_label">La longueur de la clé doit être d\'au moins 8 caractères et inclure à la fois des numéros et des lettres, mais pas de caractères spéciaux.</string>
     <string name="hide_apatch_dialog_new_manager_name">Nouveau nom du gestionnaire</string>
     <string name="hide_apatch_dialog_summary">Il sera utilisé comme label de la nouvelle application affichée dans le lanceur d\'applications</string>
-    <string name="hide_apatch_manager_summary">Installer un nouveau gestionnaire avec un identifiant de paquet aléatoire et un label d\'application personnalisé</string>
+    <string name="hide_apatch_manager_summary">Installer un proxy avec un identifiant de paquet aléatoire et un label d\'application personnalisé</string>
     <string name="hide_apatch_manager_failure">Échec de la dissimulation, merci de signaler le bug !</string>
     <string name="patch_embed_kpm_btn">Intégrer un KPM</string>
     <string name="patch_start_patch_btn">Démarrer</string>
@@ -149,7 +149,7 @@
     <string name="home_system_version">Version du système</string>
     <string name="home_kpatch_version">Version de KernelPatch</string>
     <string name="enable_web_debugging_summary">Peut être utilisé pour déboguer l\'interface web, n\'activer cette option qu\'en cas de besoin.</string>
-    <string name="home_new_apatch_found">Nouvelle version disponible : %s, Cliquer pour mettre à jour</string>
+    <string name="home_new_apatch_found">Nouvelle version disponible : %s, Cliquer pour mettre à jour.</string>
     <string name="home_dialog_auth_fail_title">Echec de l\'authentification</string>
     <string name="home_dialog_uninstall_title">Désinstaller</string>
     <string name="home_dialog_uninstall_ap_only">Supprimer AndroidPatch</string>
@@ -206,7 +206,11 @@
     <string name="save_log">Enregistrer le journal</string>
     <string name="apm_action">Action</string>
     <string name="log_saved">Journal enregistré</string>
-    <string name="crash_handle_title">L’application a planté...</string>
+    <string name="crash_handle_title">L\'application a planté…</string>
     <string name="crash_handle_copy">Copier le rapport de plantage</string>
     <string name="crash_handle_copied">Rapport de plantage copié dans le presse-papiers.</string>
+    <string name="settings_lite_mode">Activer le mode Lite</string>
+    <string name="settings_lite_mode_mode_summary">Les fonctions APModule peuvent présenter des défaillances après avoir été activées, mais dans certains cas, elles peuvent toujours éviter la détection. Redémarrage requis.</string>
+    <string name="settings_force_overlayfs_mode">Utilisation forcée de OverlayFS</string>
+    <string name="settings_force_overlayfs_mode_summary">Utilisez OverlayFS pour monter APModules au lieu de Magic Mount lorsque le support du noyau est disponible. Redémarrage requis.</string>
 </resources>

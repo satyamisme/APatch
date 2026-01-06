@@ -22,8 +22,8 @@
     <string name="about">Sobre</string>
     <string name="home_learn_apatch">Saiba mais sobre o APatch</string>
     <string name="home_click_to_learn_apatch">Conheça os recursos do APatch e como usá-lo</string>
-    <string name="about_source_code"><![CDATA[<p>Veja o código-fonte em %1$s<p/>Participe do nosso canal do %2$s<p/>Participe do nosso grupo do %3$s]]></string>
-    <string name="send_log">Reportar registro</string>
+    <string name="about_source_code"><![CDATA[<p>Veja o código-fonte no %1$s<p/>Participe do nosso canal do %2$s<p/>Participe do nosso grupo do %3$s]]></string>
+    <string name="send_log">Reportar registros</string>
     <string name="safe_mode">Modo de segurança</string>
     <string name="super_key">SuperKey</string>
     <string name="patch_set_superkey">Definir SuperKey</string>
@@ -45,7 +45,7 @@
     <string name="home_ap_cando_install">Instalar</string>
     <string name="home_ap_cando_update">Atualizar</string>
     <string name="home_ap_cando_uninstall">Desinstalar</string>
-    <string name="home_kernel">Kernel</string>
+    <string name="home_kernel">Versão do kernel</string>
     <string name="home_manager_version">Versão do gerenciador</string>
     <string name="home_fingerprint">Impressão digital</string>
     <string name="home_selinux_status">Status do SELinux</string>
@@ -140,16 +140,16 @@
     <string name="success">Sucesso</string>
     <string name="setting_reset_su_path">Redefinir caminho su</string>
     <string name="settings_check_update_summary">Verifique automaticamente se há atualizações ao abrir o app</string>
-    <string name="settings_check_update">Verificar por atualização</string>
-    <string name="mode_select_page_install_inactive_slot">Instalar no slot inativo (após o OTA)</string>
+    <string name="settings_check_update">Verificar por atualizações</string>
+    <string name="mode_select_page_install_inactive_slot">Instalar no slot inativo (Após o OTA)</string>
     <string name="mode_select_page_install_inactive_slot_warning">Seu dispositivo será **FORÇADO** a inicializar no slot inativo atual após uma reinicialização!
 \nSó use esta opção após a conclusão do OTA.
 \nDeseja continuar?</string>
     <string name="home_dialog_auth_fail_title">Falha na autenticação</string>
-    <string name="mode_select_page_select_file">Selecionar imagem boot para Patch</string>
+    <string name="mode_select_page_select_file">Selecionar imagem boot para patch</string>
     <string name="mode_select_page_title">Instalar</string>
     <string name="mode_select_page_patch_and_install">Patch e instalação</string>
-    <string name="home_dialog_auth_fail_content">Não foi possível autenticar a SuperKey, portanto o APatch não pode funcionar corretamente. \nAqui estão alguns possíveis motivos para a falha de autenticação:\n1. Você não fez patch do boot.img com KernelPatch:\n2. O boot.img corrigido não foi flashado.\n3. A SuperKey está incorreta ou contém caracteres especiais.\n4. Seu dispositivo não oferece suporte ao APatch e KernelPatch.\n\nPor favor, verifique e tente novamente. Se ainda houver problemas, você pode fazer perguntas na página de problemas do repositório oficial.</string>
+    <string name="home_dialog_auth_fail_content">Não foi possível autenticar a SuperKey, portanto o APatch não pode funcionar corretamente. \nAqui estão alguns possíveis motivos para a falha de autenticação:\n1. Você não fez patch do boot.img com KernelPatch.\n2. O boot.img corrigido não foi flashado.\n3. A SuperKey está incorreta ou contém caracteres especiais.\n4. Seu dispositivo não oferece suporte ao APatch e KernelPatch.\n\nPor favor, verifique e tente novamente. Se ainda houver problemas, você pode fazer perguntas na página de problemas do repositório oficial.</string>
     <string name="home_more_menu_feedback_or_suggestion">Feedback ou sugestão</string>
     <string name="home_more_menu_about">Sobre</string>
     <string name="apm_webui_open">Abrir</string>
@@ -158,7 +158,7 @@
     <string name="enable_web_debugging_summary">Pode ser usado para depurar o WebUI. Por favor, ative somente quando necessário.</string>
     <string name="settings_donot_store_superkey">Não armazenar a SuperKey no local</string>
     <string name="home_new_apatch_found">Nova versão %s está disponível, clique para atualizar.</string>
-    <string name="patch_mode_install_to_next_slot">Modo: Instalar no slot inativo (após o OTA)</string>
+    <string name="patch_mode_install_to_next_slot">Modo: Instalar no slot inativo (Após o OTA)</string>
     <string name="home_device_info">Dispositivo</string>
     <string name="home_dialog_uninstall_ap_only">Desinstalar AndroidPatch</string>
     <string name="home_dialog_uninstall_all">Desinstalar tudo</string>
@@ -203,10 +203,14 @@
     <string name="deep_purple_theme">Roxo profundo</string>
     <string name="about_app_desc">Solução root do kernel com uma única imagem despojada, oferecendo a capacidade de montar módulos do sistema e interceptar funções do kernel.</string>
     <string name="kpm_control_dialog_title">Controlar KPMódulo</string>
-    <string name="save_log">Salvar registro</string>
+    <string name="save_log">Salvar registros</string>
     <string name="apm_action">Ação</string>
-    <string name="crash_handle_copied">Registro de falhas copiado</string>
+    <string name="crash_handle_copied">Registro de falhas copiado.</string>
     <string name="crash_handle_title">O app travou…</string>
     <string name="crash_handle_copy">Copiar registro de falhas</string>
-    <string name="log_saved">Registro salvo</string>
+    <string name="log_saved">Registros salvos</string>
+    <string name="settings_lite_mode">Ativar Modo lite</string>
+    <string name="settings_lite_mode_mode_summary">As funções do APMódulo podem apresentar falhas após serem ativadas, mas em alguns casos ainda podem evitar a detecção. Reinicialização necessária.</string>
+    <string name="settings_force_overlayfs_mode_summary">Use OverlayFS para montar os APMódulos em vez do Magic Mount, quando houver suporte no kernel. Reinicialização necessária.</string>
+    <string name="settings_force_overlayfs_mode">Forçar o uso do OverlayFS</string>
 </resources>
